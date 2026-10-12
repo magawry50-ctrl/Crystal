@@ -2338,22 +2338,9 @@ input[type="range"].ios:active::-webkit-slider-thumb {
 
 /* Igloo Vertical Carousel Indicator */
 .carousel-indicator {
-  position: fixed;
-  left: 32px;
-  bottom: 32px;
-  display: flex;
-  align-items: center;
-  gap: 14px;
-  z-index: 20;
-  pointer-events: none;
-  font-size: 10px;
-  letter-spacing: 0.16em;
-  color: var(--text-faint);
-  transition: opacity 0.4s ease;
-}
-
-.carousel-indicator.hidden {
-  opacity: 0;
+  display: none !important;
+  visibility: hidden !important;
+  pointer-events: none !important;
 }
 
 .indicator-track {
