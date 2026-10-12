@@ -879,16 +879,6 @@ export class ParametersDrawer {
         <div class="mf-tab-content" data-tab="dynamics" data-active="${this.activeTab === 'dynamics'}">
           <div class="mf-static-label">MOTION & FLOATING</div>
 
-          <!-- In-Place Dynamics (360° Revolve vs Floating) -->
-          <div class="mf-row-header mb-1.5">
-            <span class="mf-row-title">Dynamics</span>
-            <span id="mf-active-dynamic-label" class="mono text-[11px] text-muted">${(v.motionDynamic === 'revolve' || v.motionMode === 'revolve') ? '360° Revolve' : 'Floating'}</span>
-          </div>
-          <div class="mf-seg mb-3">
-            <button type="button" class="mf-seg-btn btn-press" data-dynamic="revolve" data-active="${(v.motionDynamic === 'revolve' || v.motionMode === 'revolve')}">🔄 360° Revolve</button>
-            <button type="button" class="mf-seg-btn btn-press" data-dynamic="float" data-active="${(v.motionDynamic !== 'revolve' && v.motionMode !== 'revolve')}">🫧 Floating</button>
-          </div>
-
           <!-- Spin slider -->
           <div class="mf-row-slider">
             <div class="mf-row-header">
@@ -916,28 +906,6 @@ export class ParametersDrawer {
             <input class="ios" type="range" data-key="tilt" min="-45" max="45" step="1" value="${v.tilt ?? (isLiquid ? -4 : -8)}">
           </div>
 
-          <!-- Vertical Scroll Navigation Switch -->
-          <div class="mf-row-switch">
-            <div>
-              <div class="mf-row-title">Vertical Scroll</div>
-              <div class="mf-row-desc">Mouse-wheel vertical navigation between stones</div>
-            </div>
-            <button type="button" role="switch" class="mf-switch" data-key="scrollEnabled" aria-checked="${v.scrollEnabled !== undefined ? v.scrollEnabled : (isLiquid ? false : true)}">
-              <span class="mf-switch-knob"></span>
-            </button>
-          </div>
-
-          <!-- Surface Hover Ripple Switch -->
-          <div class="mf-row-switch">
-            <div>
-              <div class="mf-row-title">Surface Hover Ripple</div>
-              <div class="mf-row-desc">Fluid frost melt & caustics under pointer</div>
-            </div>
-            <button type="button" role="switch" class="mf-switch" data-key="surfaceHover" aria-checked="${v.surfaceHover !== false}">
-              <span class="mf-switch-knob"></span>
-            </button>
-          </div>
-
           <!-- Drag to turn Switch -->
           <div class="mf-row-switch">
             <div>
@@ -945,60 +913,6 @@ export class ParametersDrawer {
               <div class="mf-row-desc">Off: the stone is a picture you can still break</div>
             </div>
             <button type="button" role="switch" class="mf-switch" data-key="orbit" aria-checked="${v.orbit !== undefined ? v.orbit : (isLiquid ? false : true)}">
-              <span class="mf-switch-knob"></span>
-            </button>
-          </div>
-
-          <div class="mf-section-divider"></div>
-          <div class="mf-static-label">ENVIRONMENT (البيئة الخارجية)</div>
-
-          <!-- Environment Sky Dome Switch (MetalForge Meadow) -->
-          <div class="mf-row-switch">
-            <div>
-              <div class="mf-row-title">Meadow Sky (سماء Meadow الفائقة)</div>
-              <div class="mf-row-desc">MetalForge Meadow 360° HDR sky, volumetric clouds & physically-based sun</div>
-            </div>
-            <button type="button" role="switch" class="mf-switch" id="mf-switch-sky" data-key="skyEnabled" aria-checked="${v.skyEnabled !== undefined ? v.skyEnabled : (isLiquid ? false : true)}">
-              <span class="mf-switch-knob"></span>
-            </button>
-          </div>
-
-          <!-- Meadow Sky Presets Picker -->
-          <div class="mf-sky-presets-panel ${v.skyEnabled ? '' : 'hidden'}" id="mf-sky-presets-wrapper">
-            <div class="mf-sky-presets-panel-title">
-              Atmosphere & Light (طبيعة السماء والضوء)
-            </div>
-            <div class="mf-sky-presets-grid">
-              <button type="button" class="mf-sky-preset-btn ${(!v.skyPreset || v.skyPreset === 'day') ? 'active' : ''}" data-preset="day" data-active="${(!v.skyPreset || v.skyPreset === 'day')}">
-                <span class="mf-sky-emoji">☀️</span>
-                <span class="mf-sky-label">Day</span>
-              </button>
-              <button type="button" class="mf-sky-preset-btn ${v.skyPreset === 'golden' ? 'active' : ''}" data-preset="golden" data-active="${v.skyPreset === 'golden'}">
-                <span class="mf-sky-emoji">🌅</span>
-                <span class="mf-sky-label">Golden</span>
-              </button>
-              <button type="button" class="mf-sky-preset-btn ${v.skyPreset === 'rain' ? 'active' : ''}" data-preset="rain" data-active="${v.skyPreset === 'rain'}">
-                <span class="mf-sky-emoji">🌧️</span>
-                <span class="mf-sky-label">Rain</span>
-              </button>
-              <button type="button" class="mf-sky-preset-btn ${v.skyPreset === 'snow' ? 'active' : ''}" data-preset="snow" data-active="${v.skyPreset === 'snow'}">
-                <span class="mf-sky-emoji">❄️</span>
-                <span class="mf-sky-label">Snow</span>
-              </button>
-              <button type="button" class="mf-sky-preset-btn ${v.skyPreset === 'night' ? 'active' : ''}" data-preset="night" data-active="${v.skyPreset === 'night'}">
-                <span class="mf-sky-emoji">✨</span>
-                <span class="mf-sky-label">Night</span>
-              </button>
-            </div>
-          </div>
-
-          <!-- FFT Ocean Surface Switch (E:\fft-ocean-surface) -->
-          <div class="mf-row-switch">
-            <div>
-              <div class="mf-row-title">Ocean Surface (البحر)</div>
-              <div class="mf-row-desc">Displaced waves, crest foam & reflections from fft-ocean-surface</div>
-            </div>
-            <button type="button" role="switch" class="mf-switch" id="mf-switch-ocean" data-key="oceanEnabled" aria-checked="${v.oceanEnabled === true}">
               <span class="mf-switch-knob"></span>
             </button>
           </div>
@@ -1570,27 +1484,7 @@ export class ParametersDrawer {
           return;
         }
 
-        if (key === 'skyEnabled') {
-          const skyPresets = document.getElementById('mf-sky-presets-wrapper');
-          if (skyPresets) skyPresets.classList.toggle('hidden', !next);
-        }
-
         this.onParamChange(key, next);
-        this.updateChangedCount();
-      });
-    });
-
-    // 8b. Meadow Sky Atmospheric Presets Selection
-    this.container.querySelectorAll('.mf-sky-preset-btn').forEach(btn => {
-      btn.addEventListener('click', () => {
-        const preset = btn.dataset.preset;
-        this.currentValues.skyPreset = preset;
-        this.container.querySelectorAll('.mf-sky-preset-btn').forEach(b => {
-          const isActive = b.dataset.preset === preset;
-          b.classList.toggle('active', isActive);
-          b.setAttribute('data-active', String(isActive));
-        });
-        this.onParamChange('skyPreset', preset);
         this.updateChangedCount();
       });
     });
@@ -1664,42 +1558,6 @@ export class ParametersDrawer {
         }
 
         this.onParamChange('background', mode);
-        this.updateChangedCount();
-      });
-    });
-
-    // 11b. In-Place Dynamics Segmented Toggle (360° Revolve / Floating)
-    this.container.querySelectorAll('.mf-seg-btn[data-dynamic]').forEach(seg => {
-      seg.addEventListener('click', () => {
-        const mode = seg.dataset.dynamic;
-        this.currentValues.motionDynamic = mode;
-
-        this.container.querySelectorAll('.mf-seg-btn[data-dynamic]').forEach(s => {
-          s.setAttribute('data-active', String(s.dataset.dynamic === mode));
-        });
-
-        const dynLbl = document.getElementById('mf-active-dynamic-label');
-        if (dynLbl) dynLbl.textContent = mode === 'revolve' ? '360° Revolve' : 'Floating';
-
-        this.onParamChange('motionDynamic', mode);
-        this.updateChangedCount();
-      });
-    });
-
-    // 11c. Legacy Motion Dynamic Segmented Toggle (Vertical Scroll / 360° Revolve)
-    this.container.querySelectorAll('.mf-seg-btn[data-motion]').forEach(seg => {
-      seg.addEventListener('click', () => {
-        const mode = seg.dataset.motion;
-        this.currentValues.motionMode = mode;
-
-        this.container.querySelectorAll('.mf-seg-btn[data-motion]').forEach(s => {
-          s.setAttribute('data-active', String(s.dataset.motion === mode));
-        });
-
-        const motionLbl = document.getElementById('mf-active-motion-label');
-        if (motionLbl) motionLbl.textContent = mode === 'revolve' ? '360° Revolve' : 'Vertical Scroll';
-
-        this.onParamChange('motionMode', mode);
         this.updateChangedCount();
       });
     });
@@ -1858,48 +1716,11 @@ export class ParametersDrawer {
     }
 
     // Update switches
-    for (const key of ['breakable', 'orbit', 'surfaceHover', 'scrollEnabled', 'symbolVisible', 'skyEnabled', 'oceanEnabled']) {
+    for (const key of ['breakable', 'orbit', 'symbolVisible']) {
       if (newValues[key] !== undefined) {
         const sw = this.container.querySelector(`.mf-switch[data-key="${key}"]`);
         if (sw) sw.setAttribute('aria-checked', String(newValues[key]));
       }
-    }
-
-    // Update Meadow Sky Presets & visibility
-    if (newValues.skyEnabled !== undefined) {
-      const presetsWrapper = document.getElementById('mf-sky-presets-wrapper');
-      if (presetsWrapper) {
-        presetsWrapper.classList.toggle('hidden', !newValues.skyEnabled);
-      }
-    }
-
-    if (newValues.skyPreset !== undefined) {
-      this.currentValues.skyPreset = newValues.skyPreset;
-      this.container.querySelectorAll('.mf-sky-preset-btn').forEach(btn => {
-        const isActive = btn.dataset.preset === newValues.skyPreset;
-        btn.classList.toggle('active', isActive);
-        btn.setAttribute('data-active', String(isActive));
-      });
-    }
-
-    // Update dynamics segmented (360° Revolve vs Floating)
-    const dynMode = newValues.motionDynamic || (newValues.motionMode === 'revolve' ? 'revolve' : (newValues.motionMode === 'scroll' ? 'float' : undefined));
-    if (dynMode) {
-      this.currentValues.motionDynamic = dynMode;
-      this.container.querySelectorAll('.mf-seg-btn[data-dynamic]').forEach(s => {
-        s.setAttribute('data-active', String(s.dataset.dynamic === dynMode));
-      });
-      const dynLbl = document.getElementById('mf-active-dynamic-label');
-      if (dynLbl) dynLbl.textContent = dynMode === 'revolve' ? '360° Revolve' : 'Floating';
-    }
-
-    // Update legacy motion segmented
-    if (newValues.motionMode) {
-      this.container.querySelectorAll('.mf-seg-btn[data-motion]').forEach(s => {
-        s.setAttribute('data-active', String(s.dataset.motion === newValues.motionMode));
-      });
-      const motionLbl = document.getElementById('mf-active-motion-label');
-      if (motionLbl) motionLbl.textContent = newValues.motionMode === 'revolve' ? '360° Revolve' : 'Vertical Scroll';
     }
 
     // Update symbol grid & visibility
