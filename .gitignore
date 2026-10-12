@@ -1,0 +1,51 @@
+# Dependencies
+node_modules/
+
+# Production build
+dist/
+dist-ssr/
+
+# Environment and local
+.env
+.env.local
+*.local
+
+# Logs
+logs/
+*.log
+npm-debug.log*
+yarn-debug.log*
+pnpm-debug.log*
+
+# Editor & OS
+.DS_Store
+.idea/
+.vscode/
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+
+# Scratch & reverse-engineering extraction artifacts
+scratch_*
+dump_*
+igloo_analysis*
+igloo_App3D.js
+igloo_bundle.js
+meadow_source.js
+meadow_chunk*.js
+test_*
+extract_*
+fetch_*
+find_*
+analyze_*
+assemble_*
+chunk_*
+mod*.js
+liquid_*.json
+liquid_looks.js
+print_wl_hooks.cjs
+patch_engine.cjs
+extracted_WL.js
+download_real_assets.cjs

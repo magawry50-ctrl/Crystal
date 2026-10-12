@@ -1,0 +1,322 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>3D Gemstone Crystal Simulation</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&family=Outfit:wght@400;600;700;800;900&family=Space+Grotesk:wght@500;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/src/style.css" />
+</head>
+<body>
+  <!-- 3D WebGL Canvas Containers -->
+  <div id="igloo-container" class="canvas-viewport active"></div>
+  <div id="canvas-container" class="canvas-viewport"></div>
+  <div id="liquid-container" class="canvas-viewport"></div>
+
+  <!-- Dynamic SVG Layer for 3D-projected Leader Lines & Reticles -->
+  <svg id="hud-svg" class="hud-svg-overlay">
+    <defs>
+      <filter id="glow" x="-20%" y="-20%" width="140%" height="140%">
+        <feGaussianBlur stdDeviation="1.5" result="blur" />
+        <feMerge>
+          <feMergeNode in="blur" />
+          <feMergeNode in="SourceGraphic" />
+        </feMerge>
+      </filter>
+    </defs>
+    <path id="line-top" class="hud-line" d="M 0 0" />
+    <path id="line-right" class="hud-line" d="M 0 0" />
+    <path id="line-bottom" class="hud-line" d="M 0 0" />
+
+    <circle id="dot-top" class="hud-anchor-dot" cx="-999" cy="-999" r="2.5" />
+    <circle id="dot-right" class="hud-anchor-dot" cx="-999" cy="-999" r="2.5" />
+    <circle id="dot-bottom" class="hud-anchor-dot" cx="-999" cy="-999" r="2.5" />
+  </svg>
+
+  <!-- Authentic Polar Grid Crosshairs (+) -->
+  <div class="polar-crosshair ch-tl">+</div>
+  <div class="polar-crosshair ch-tr">+</div>
+  <div class="polar-crosshair ch-bl">+</div>
+  <div class="polar-crosshair ch-br">+</div>
+
+  <!-- Top Navigation & Controls Header -->
+  <header class="site-header">
+    <div class="header-left">
+      <button id="btn-theme-toggle" class="btn-theme-toggle" title="Toggle Dark / Light Theme">
+        <svg class="icon-sun" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <circle cx="12" cy="12" r="5"></circle>
+          <line x1="12" y1="1" x2="12" y2="3"></line>
+          <line x1="12" y1="21" x2="12" y2="23"></line>
+          <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+          <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+          <line x1="1" y1="12" x2="3" y2="12"></line>
+          <line x1="21" y1="12" x2="23" y2="12"></line>
+          <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+          <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+        </svg>
+        <svg class="icon-moon" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+        </svg>
+        <span id="theme-text">LIGHT</span>
+      </button>
+    </div>
+
+    <div class="header-right">
+      <button id="btn-toggle-tuning" class="btn-tuning-toggle" title="Toggle Parameters">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <circle cx="12" cy="12" r="3"></circle>
+          <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 1 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
+        </svg>
+        <span>PARAMETERS</span>
+      </button>
+    </div>
+  </header>
+
+  <!-- Mode Selector Bar (Top/Center): 1- Rock | 2- Crystals | 3- Liquid Glass -->
+  <nav class="gem-selector-bar" aria-label="Simulation Mode Selector">
+    <div class="gem-pills-container mode-switcher-container">
+      <button class="gem-pill mode-pill pill-rock active" data-mode="rock" title="1- Rock: Pudgy Penguins & Overpass IP">
+        <svg class="pill-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+          <path d="M12 2L3 7v10l9 5 9-5V7l-9-5z"/>
+          <line x1="12" y1="2" x2="12" y2="22"/>
+          <line x1="12" y1="12" x2="21" y2="7"/>
+          <line x1="12" y1="12" x2="3" y2="7"/>
+        </svg>
+        <span class="pill-title">Rock</span>
+        <span class="pill-badge pill-badge-rock">2</span>
+      </button>
+
+      <div class="pill-separator" aria-hidden="true"></div>
+
+      <button class="gem-pill mode-pill pill-crystals" data-mode="crystals" title="2- Crystals: Froststone, Emberstone, Moonstone, Tidestone, Heartstone, Luckstone, Thunderstone">
+        <svg class="pill-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+          <polygon points="6 2 18 2 22 8 12 22 2 8 6 2"/>
+          <line x1="2" y1="8" x2="22" y2="8"/>
+          <line x1="12" y1="2" x2="8" y2="8"/>
+          <line x1="12" y1="2" x2="16" y2="8"/>
+          <line x1="8" y1="8" x2="12" y2="22"/>
+          <line x1="16" y1="8" x2="12" y2="22"/>
+        </svg>
+        <span class="pill-title">Crystals</span>
+        <span class="pill-badge pill-badge-crystals">7</span>
+      </button>
+
+      <div class="pill-separator" aria-hidden="true"></div>
+
+      <button class="gem-pill mode-pill pill-liquid" data-mode="liquid" title="3- Liquid Glass: 3D Fluid & Shapes Simulation">
+        <svg class="pill-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+          <circle cx="12" cy="12" r="9"/>
+          <path d="M7 12c1.5-2 3.5-2 5 0s3.5 2 5 0"/>
+        </svg>
+        <span class="pill-title">Liquid Glass</span>
+        <span class="pill-badge pill-badge-liquid">Fluid</span>
+      </button>
+    </div>
+  </nav>
+
+  <!-- Floating 3D Tracked HUD Cards (Follows Crystal) -->
+  <div id="card-top" class="hud-anchor-card card-top">
+    <div class="card-inner">
+      <div id="project-code" class="mono-sub">PORTFOLIO_CO_01</div>
+      <div id="project-name" class="mono-title">PUDGY PENGUINS</div>
+    </div>
+  </div>
+
+  <div id="card-right" class="hud-anchor-card card-right">
+    <div class="card-inner">
+      <div class="temp-readout">
+        <span class="temp-label">TEMP</span>
+        <span id="temp-val" class="temp-num">33.90</span>
+      </div>
+      <div id="temp-delta" class="temp-delta">+01.06</div>
+    </div>
+  </div>
+
+  <div id="card-bottom" class="hud-anchor-card card-bottom">
+    <div class="card-inner">
+      <div id="project-date" class="date-tag">D 01.02.2020</div>
+      <button id="btn-explore" class="btn-explore-prompt">
+        <span class="btn-bracket">[</span>
+        <span class="btn-text">CLICK TO EXPLORE</span>
+        <span class="btn-bracket">]</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- Action Controls (Chip / Shatter / Put it back for MetalForge) -->
+  <div id="metalforge-actions-bar" class="metalforge-actions-bar">
+    <div class="actions-group">
+      <button id="btn-chip" class="btn-action" title="Chip individual glass piece">Chip</button>
+      <button id="btn-shatter" class="btn-action btn-shatter-accent" title="Explode crystal into shards">Shatter</button>
+      <button id="btn-put-back" class="btn-action" title="Reassemble crystal">Put it back</button>
+    </div>
+  </div>
+
+  <!-- Carousel Vertical Indicator for Igloo Mode -->
+  <div id="carousel-indicator" class="carousel-indicator">
+    <div class="indicator-track">
+      <div class="indicator-bar" id="indicator-bar"></div>
+    </div>
+    <div class="indicator-hint">SCROLL / DRAG TO ROTATE & SWITCH · CLICK TO DECRYPT</div>
+  </div>
+
+  <!-- Bottom Navigation / Control Dock -->
+  <footer class="site-footer">
+    <div class="footer-left">
+      <button id="btn-sound" class="btn-sound-toggle" title="Toggle Sound">
+        <svg id="sound-icon" class="icon-speaker" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon>
+          <path class="wave-1" d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07"></path>
+        </svg>
+        <span id="sound-text">Sound: On</span>
+      </button>
+
+      <!-- 1. Motion Dynamic: 360° Revolve (الدوران المستمر) vs Floating (وضع الطفو) -->
+      <div class="motion-dynamic-segmented" role="group" aria-label="Stone In-Place Dynamics">
+        <button id="btn-dynamic-revolve" class="btn-dynamic-pill" title="الدوران المستمر 360° (Continuous 360° Orbit Spin)">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38l5.67-5.67"></path>
+          </svg>
+          <span>360° REVOLVE</span>
+        </button>
+        <button id="btn-dynamic-float" class="btn-dynamic-pill active" title="وضع الطفو الساكن (Idle Floating & Levitation in place)">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="7"></circle>
+            <path d="M12 9v1m0 4v1"></path>
+          </svg>
+          <span>FLOATING</span>
+        </button>
+      </div>
+
+      <!-- 2. Vertical Scroll: تشغيل / إيقاف السكرول الرأسي بين الأحجار -->
+      <button id="btn-scroll-toggle" class="btn-scroll-toggle active" title="تشغيل / إيقاف السكرول الرأسي بين الأحجار (Toggle Vertical Scroll Navigation)">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+          <polyline points="7 15 12 20 17 15"></polyline>
+          <polyline points="7 9 12 4 17 9"></polyline>
+          <line x1="12" y1="4" x2="12" y2="20"></line>
+        </svg>
+        <span id="scroll-toggle-text">SCROLL: ON</span>
+        <span class="scroll-dot"></span>
+      </button>
+
+      <!-- 3. Surface Hover Ripple: تشغيل / إيقاف أثر الهافر وتموج الجليد السطحي -->
+      <button id="btn-surface-hover-toggle" class="btn-hover-ripple-toggle active" title="تشغيل / إيقاف أثر الهافر وتموج الجليد السطحي (Toggle Surface Melt Ripple on Hover)">
+        <svg class="ripple-icon" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="12" cy="12" r="3"></circle>
+          <path d="M6 12a6 6 0 0 1 12 0"></path>
+          <path d="M3 12a9 9 0 0 1 18 0"></path>
+        </svg>
+        <span id="hover-toggle-text">HOVER RIPPLE: ON</span>
+        <span class="hover-ripple-dot"></span>
+      </button>
+
+      <!-- 4. Environment Sky Dome Toggle (E:\environment-map\environment-map) -->
+      <button id="btn-sky-toggle" class="btn-env-toggle" title="سماء البيئة الديناميكية (Toggle Sky Dome from E:\environment-map)">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="12" cy="12" r="5"></circle>
+          <line x1="12" y1="1" x2="12" y2="3"></line>
+          <line x1="12" y1="21" x2="12" y2="23"></line>
+          <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+          <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+          <line x1="1" y1="12" x2="3" y2="12"></line>
+          <line x1="21" y1="12" x2="23" y2="12"></line>
+          <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+          <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+        </svg>
+        <span id="sky-toggle-text">SKY: OFF</span>
+        <span class="env-dot"></span>
+      </button>
+
+      <!-- 5. FFT Ocean Surface Toggle (E:\fft-ocean-surface\fft-ocean-surface) -->
+      <button id="btn-ocean-toggle" class="btn-env-toggle" title="سطح البحر الديناميكي والأمواج (Toggle Ocean Surface from E:\fft-ocean-surface)">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M2 6c.6.5 1.2 1 2.5 1C7 7 7 5 9.5 5c2.6 0 2.4 2 5 2 2.5 0 2.5-2 5-2 1.3 0 1.9.5 2.5 1"></path>
+          <path d="M2 12c.6.5 1.2 1 2.5 1 2.5 0 2.5-2 5-2 2.6 0 2.4 2 5 2 2.5 0 2.5-2 5-2 1.3 0 1.9.5 2.5 1"></path>
+          <path d="M2 18c.6.5 1.2 1 2.5 1 2.5 0 2.5-2 5-2 2.6 0 2.4 2 5 2 2.5 0 2.5-2 5-2 1.3 0 1.9.5 2.5 1"></path>
+        </svg>
+        <span id="ocean-toggle-text">OCEAN: OFF</span>
+        <span class="env-dot"></span>
+      </button>
+    </div>
+
+    <div class="footer-right">
+      <button id="btn-reset" class="btn-icon" title="Reset View">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/>
+          <path d="M3 3v5h5"/>
+        </svg>
+      </button>
+    </div>
+  </footer>
+
+  <!-- Realtime Parameters Drawer (100% Authentic MetalForge Specifications) -->
+  <aside id="parameters-drawer" class="parameters-drawer active" aria-label="Parameters Drawer"></aside>
+
+  <!-- Interactive Project Exploration Modal / Drawer (Official Igloo Dossier) -->
+  <aside id="explore-modal" class="explore-modal">
+    <div class="modal-card">
+      <button id="btn-close-modal" class="btn-modal-close" aria-label="Close modal">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <line x1="18" y1="6" x2="6" y2="18"></line>
+          <line x1="6" y1="6" x2="18" y2="18"></line>
+        </svg>
+      </button>
+
+      <div class="modal-header">
+        <span class="modal-badge">CONTAINER DECRYPTED</span>
+        <h2 id="modal-title" class="modal-title">PORTFOLIO_CO_01 PUDGY PENGUINS</h2>
+        <p id="modal-sub" class="modal-sub">SPECIMEN CORE IDENTIFIER #001 · D 01.02.2020</p>
+      </div>
+
+      <div class="modal-content-area">
+        <h4 class="modal-section-title">////// Summary</h4>
+        <p id="modal-desc" class="modal-desc">
+          Pudgy Penguins, a creative venture founded in 2021, quickly gained attention for its unique IP and engaging community. In 2022, the company was acquired by Igloo Inc., a strategic move aimed at expanding its reach and capabilities.
+        </p>
+
+        <div id="modal-socials-section" class="modal-socials-section">
+          <h4 class="modal-section-title">/// Discover</h4>
+          <div id="modal-socials" class="modal-socials"></div>
+        </div>
+
+        <div id="modal-visit-section" class="modal-visit-section">
+          <h4 class="modal-section-title">/// Visit</h4>
+          <a id="modal-visit-link" href="https://www.pudgypenguins.com" target="_blank" rel="noopener noreferrer" class="btn-visit">
+            <span>WEBSITE</span>
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path>
+              <polyline points="15 3 21 3 21 9"></polyline>
+              <line x1="10" y1="14" x2="21" y2="3"></line>
+            </svg>
+          </a>
+        </div>
+      </div>
+
+      <div class="modal-stats" id="modal-stats">
+        <div class="stat-box">
+          <span id="stat-1-lbl" class="stat-label">TEMPERATURE</span>
+          <span id="stat-1-val" class="stat-value">33.90 K</span>
+        </div>
+        <div class="stat-box">
+          <span id="stat-2-lbl" class="stat-label">ROUGHNESS</span>
+          <span id="stat-2-val" class="stat-value">0.65 -> 0.12</span>
+        </div>
+        <div class="stat-box">
+          <span id="stat-3-lbl" class="stat-label">PLEXUS</span>
+          <span id="stat-3-val" class="stat-value">18 NODES</span>
+        </div>
+      </div>
+
+      <div class="modal-actions">
+        <button id="btn-refreeze" class="btn-primary" onclick="document.getElementById('btn-close-modal').click()">
+          RE-FREEZE CRYSTAL
+        </button>
+      </div>
+    </div>
+  </aside>
+
+  <script type="module" src="/src/main.js"></script>
+</body>
+</html>
