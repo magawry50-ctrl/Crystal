@@ -505,23 +505,10 @@ export class ParametersDrawer {
         <!-- TAB 1: STONE SHAPE / LIQUID GLASS -->
         <div class="mf-tab-content" data-tab="stone" data-active="${this.activeTab === 'stone'}">
           ${isLiquid ? `
-            <!-- 10 Liquid Geometries Selection (Liquid Mode Only) -->
-            <div class="mf-stone-shape-section">
-              <div class="mf-stone-shape-header">
-                <span class="mf-row-title text-[11px] font-semibold text-muted uppercase tracking-wider">Liquid Geometry (10)</span>
-                <span id="mf-active-liquid-shape" class="mono text-[10px] text-accent font-bold">${LIQUID_SHAPES[v.shape || 'torus']?.label || 'Torus'}</span>
-              </div>
-              <div class="mf-liquid-shapes-grid">
-                ${Object.values(LIQUID_SHAPES).map(ls => `
-                  <button type="button" 
-                          class="mf-liquid-shape-pill btn-press" 
-                          data-liquid-shape="${ls.id}" 
-                          data-active="${(v.shape || 'torus') === ls.id}" 
-                          title="${ls.note}">
-                    <span>${ls.label}</span>
-                  </button>
-                `).join('')}
-              </div>
+            <!-- Active Liquid Specimen Banner -->
+            <div class="mf-specimen-banner">
+              <span class="mf-specimen-type">LIQUID FLUID SPECIMEN</span>
+              <span id="mf-active-liquid-shape" class="mono text-[11px] text-accent font-bold">${LIQUID_SHAPES[v.shape || 'torus']?.label || 'Torus'}</span>
             </div>
 
             <!-- Glass Tint Color -->
@@ -626,43 +613,10 @@ export class ParametersDrawer {
               <input class="ios" type="range" data-key="tube" min="0.05" max="0.35" step="0.01" value="${v.tube ?? 0.12}">
             </div>
           ` : `
-            <!-- 1- Rock & 2- Crystals Stone Archetype Selection -->
-            <div class="mf-stone-shape-section">
-              <div class="mf-stone-shape-header">
-                <span class="mf-row-title text-[11px] font-semibold text-muted uppercase tracking-wider">1- Rock (Igloo Inc)</span>
-                <span id="mf-active-stone-name" class="mono text-[10px] text-accent font-bold">${this.getStoneDisplayName(v.gem || 'pudgy')}</span>
-              </div>
-              <div class="mf-stone-grid" style="grid-template-columns: repeat(2, 1fr); margin-bottom: 12px;">
-                ${ALL_STONES.filter(s => s.isIgloo).map(s => `
-                  <button type="button" 
-                          class="mf-stone-pill btn-press pill-igloo" 
-                          data-stone="${s.id}" 
-                          data-active="${(v.gem || 'pudgy') === s.id}" 
-                          title="${s.name}">
-                    <span class="mf-stone-icon">${s.iconSvg}</span>
-                    <span class="mf-stone-title">${s.shortName}</span>
-                    ${s.badge ? `<span class="mf-stone-badge">${s.badge}</span>` : ''}
-                  </button>
-                `).join('')}
-              </div>
-
-              <div class="mf-stone-shape-header">
-                <span class="mf-row-title text-[11px] font-semibold text-muted uppercase tracking-wider">2- Crystals (MetalForge)</span>
-                <span class="mono text-[9px] text-muted">7 Presets</span>
-              </div>
-              <div class="mf-stone-grid">
-                ${ALL_STONES.filter(s => !s.isIgloo && !s.isLiquid).map(s => `
-                  <button type="button" 
-                          class="mf-stone-pill btn-press" 
-                          data-stone="${s.id}" 
-                          data-active="${(v.gem || 'pudgy') === s.id}" 
-                          title="${s.name}">
-                    <span class="mf-stone-icon">${s.iconSvg}</span>
-                    <span class="mf-stone-title">${s.shortName}</span>
-                    ${s.badge ? `<span class="mf-stone-badge">${s.badge}</span>` : ''}
-                  </button>
-                `).join('')}
-              </div>
+            <!-- Active Specimen Banner -->
+            <div class="mf-specimen-banner">
+              <span class="mf-specimen-type">${isIgloo ? '1- ROCK SPECIMEN (IGLOO INC)' : '2- CRYSTAL SPECIMEN (METALFORGE)'}</span>
+              <span id="mf-active-stone-name" class="mono text-[11px] text-accent font-bold">${this.getStoneDisplayName(v.gem || 'pudgy')}</span>
             </div>
 
             ${isIgloo ? `

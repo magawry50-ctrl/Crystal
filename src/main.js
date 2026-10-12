@@ -730,6 +730,21 @@ class IglooSimulation {
       }
     });
 
+    // Update Sub-Stones Groups visibility and active button in outside top bar
+    const currentMode = isIglooStone ? 'rock' : (isLiquid ? 'liquid' : 'crystals');
+    document.querySelectorAll('.sub-stones-group').forEach(grp => {
+      grp.style.display = (grp.getAttribute('data-mode') === currentMode) ? 'flex' : 'none';
+    });
+
+    document.querySelectorAll('.gem-sub-btn').forEach(btn => {
+      if (btn.hasAttribute('data-stone')) {
+        btn.classList.toggle('active', btn.getAttribute('data-stone') === gemId);
+      } else if (btn.hasAttribute('data-liquid-shape')) {
+        const shape = (gemId === 'orb' ? (this.currentValues.shape || 'torus') : gemId);
+        btn.classList.toggle('active', btn.getAttribute('data-liquid-shape') === shape);
+      }
+    });
+
     this.syncEnvironmentToActiveScene();
     this.updateCarouselIndicatorPosition(gemId);
   }
@@ -745,6 +760,14 @@ class IglooSimulation {
     document.querySelectorAll('.mode-pill').forEach(btn => {
       const mode = btn.getAttribute('data-mode');
       btn.classList.toggle('active', mode === 'rock');
+    });
+
+    document.querySelectorAll('.sub-stones-group').forEach(grp => {
+      grp.style.display = (grp.getAttribute('data-mode') === 'rock') ? 'flex' : 'none';
+    });
+
+    document.querySelectorAll('.gem-sub-btn[data-stone]').forEach(btn => {
+      btn.classList.toggle('active', btn.getAttribute('data-stone') === gemId);
     });
 
     this.igloo.setStoneValues(this.currentValues);
@@ -1135,6 +1158,24 @@ class IglooSimulation {
         } else if (mode === 'liquid') {
           const targetLiquid = this.lastLiquidShape || 'orb';
           this.applyGem(targetLiquid);
+        }
+      });
+    });
+
+    // Outside Sub-Stone Selection Buttons (Top Bar)
+    document.querySelectorAll('.gem-sub-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        this.sound.playClick();
+        if (btn.hasAttribute('data-stone')) {
+          const stoneId = btn.getAttribute('data-stone');
+          this.applyGem(stoneId);
+        } else if (btn.hasAttribute('data-liquid-shape')) {
+          const shapeId = btn.getAttribute('data-liquid-shape');
+          if (this.activeMode !== 'liquid') {
+            this.applyGem('orb', true, { shape: shapeId });
+          } else {
+            this.applyGem(shapeId);
+          }
         }
       });
     });
