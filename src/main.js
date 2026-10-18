@@ -109,6 +109,33 @@ const GEM_METADATA = {
     teleDelta: '+04.20',
     date: '13.09.2026',
     blurb: "The design's hero: a ball of glass that breathes. Dispersion · reflection · caustics."
+  },
+  strategy: {
+    name: 'Strategy & Growth',
+    code: 'VENTURE_STRATEGY',
+    teleLabel: 'GTM_INDEX',
+    teleValue: 98.40,
+    teleDelta: '+14.20',
+    date: '2026.Q4',
+    blurb: '4 Ascending Architectural Pillars (Business Model & Revenue Strategy) · Helical GTM Spiral (Market Expansion) · Dual Interlocking Orbit with 6 Strategic Partnership Beacon Nodes.'
+  },
+  innovation: {
+    name: 'Innovation & Products',
+    code: 'VENTURE_INNOVATION',
+    teleLabel: '0_TO_1_SEED',
+    teleValue: 100.00,
+    teleDelta: '+08.75',
+    date: '2026.Q4',
+    blurb: 'Luminous Central 0-to-1 Seed Core (Venture Design) · 8-Cube Modular Matrix (Product Strategy & Market Validation) · Tilted Expansion Orbits with Satellite Lunar Pods.'
+  },
+  systems: {
+    name: 'Systems & Intelligence',
+    code: 'VENTURE_SYSTEMS',
+    teleLabel: 'AI_SCALE',
+    teleValue: 99.98,
+    teleDelta: '+03.14',
+    date: '2026.Q4',
+    blurb: '3 Stacked Operating Slabs (Operating Model Design) · Octahedral AI Core with Data Stream Columns · Interlocking Gyroscopic Gimbal Rings.'
   }
 };
 
@@ -239,27 +266,27 @@ export const DEFAULT_APP_SETTINGS = {
 
 export const DEFAULT_LIQUID_SETTINGS = {
   gem: 'orb',
-  shape: 'torus',
-  size: 0.90,
+  shape: 'strategy',
+  size: 1.0,
   tube: 0.12,
-  dispersion: 1.05,
-  ior: 1.63,
-  thickness: 2.60,
-  roughness: 0.13,
+  dispersion: 1.25,
+  ior: 1.62,
+  thickness: 2.80,
+  roughness: 0.08,
   iridescence: 0.11,
-  clearcoat: 0.45,
-  tint: '#eef6fb',
-  noise: 0.34,
-  speed: 0.95,
+  clearcoat: 0.60,
+  tint: '#e6f4ff',
+  noise: 0.28,
+  speed: 0.85,
   twist: 0.00,
-  text: 'TORUS',
+  text: 'STRATEGY & GROWTH',
   textSize: 1.0,
   textColor: '#4a5157',
   motionDynamic: 'revolve',
   motionMode: 'revolve',
-  spin: 0.40,
-  bob: 0.20,
-  tilt: -4,
+  spin: 0.35,
+  bob: 0.15,
+  tilt: -6,
   scrollEnabled: false,
   surfaceHover: true,
   orbit: false,
@@ -587,8 +614,8 @@ class IglooSimulation {
         ...(savedLiquidDefaults || {})
       };
 
-      const targetShape = (gemId === 'orb' ? (customOverrides?.shape || liquidDefaults.shape || 'torus') : gemId);
-      const shapeObj = LIQUID_SHAPES[targetShape] || LIQUID_SHAPES.torus || LIQUID_SHAPES.orb;
+      const targetShape = (gemId === 'orb' ? (customOverrides?.shape || liquidDefaults.shape || 'strategy') : gemId);
+      const shapeObj = LIQUID_SHAPES[targetShape] || LIQUID_SHAPES.strategy || LIQUID_SHAPES.orb;
 
       const mergedLiquidVals = {
         ...DEFAULT_LIQUID_SETTINGS,
@@ -636,7 +663,7 @@ class IglooSimulation {
       }
 
       // Update HUD metadata
-      const meta = GEM_METADATA.orb;
+      const meta = GEM_METADATA[targetShape] || GEM_METADATA.orb;
       this.updateHudMetadata(meta.code, meta.name, meta.teleLabel, meta.teleValue, meta.teleDelta, meta.date);
 
       // Update parameters drawer
@@ -715,7 +742,7 @@ class IglooSimulation {
       this.lastCrystalId = gemId;
       this.lastGemstoneId = gemId;
     } else {
-      this.lastLiquidShape = (gemId === 'orb' ? (customOverrides?.shape || this.lastLiquidShape || 'orb') : gemId);
+      this.lastLiquidShape = (gemId === 'orb' ? (customOverrides?.shape || this.lastLiquidShape || 'strategy') : gemId);
     }
 
     // Update active mode in top selector bar (1- Rock | 2- Crystals | 3- Liquid Glass)
@@ -1156,7 +1183,7 @@ class IglooSimulation {
           const targetCrystal = this.lastCrystalId || 'froststone';
           this.applyGem(targetCrystal);
         } else if (mode === 'liquid') {
-          const targetLiquid = this.lastLiquidShape || 'orb';
+          const targetLiquid = this.lastLiquidShape || 'strategy';
           this.applyGem(targetLiquid);
         }
       });
@@ -1453,8 +1480,35 @@ class IglooSimulation {
         e.stopPropagation();
         if (this.activeMode === 'igloo') {
           this.igloo.openCurrentStone();
+        } else if (this.activeMode === 'liquid') {
+          const curShape = this.currentValues.shape || 'strategy';
+          const meta = GEM_METADATA[curShape] || GEM_METADATA.orb;
+          const data = {
+            title: meta.name,
+            date: meta.date,
+            summary: meta.blurb,
+            tempNum: meta.teleValue,
+            index: 0,
+            discover: [
+              { name: 'Dynamic Water Aura', url: '#' },
+              { name: 'Simplex 3D Wave Ripple', url: '#' }
+            ],
+            website: '#'
+          };
+          this.openDossierModal(data);
         } else {
-          exploreModal.classList.toggle('active');
+          const curGem = this.currentValues.gem || 'froststone';
+          const meta = GEM_METADATA[curGem] || GEM_METADATA.froststone;
+          const data = {
+            title: meta.name,
+            date: meta.date,
+            summary: meta.blurb,
+            tempNum: meta.teleValue,
+            index: 0,
+            discover: [],
+            website: '#'
+          };
+          this.openDossierModal(data);
         }
       });
     }

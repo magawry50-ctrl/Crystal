@@ -85,7 +85,7 @@ export class HUDController {
 
       // Diagonal up-left, then horizontal line left
       const elbowX = pTop.x - 65;
-      const elbowY = Math.max(85, pTop.y - 65);
+      const elbowY = Math.max(125, pTop.y - 65);
       const lineEndX = elbowX - 130;
 
       this.lineTop.setAttribute('d', `M ${pTop.x} ${pTop.y} L ${elbowX} ${elbowY} L ${lineEndX} ${elbowY}`);

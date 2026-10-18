@@ -12,7 +12,444 @@ const DEG_TO_RAD = Math.PI / 180;
 const num = (v, fallback) => (typeof v === 'number' && isFinite(v) ? v : fallback);
 const str = (v, fallback) => (typeof v === 'string' && v ? v : fallback);
 
+// ----------------------------------------------------------------------------
+// Custom 3D Internal Specimen Builders for Business Strategy, Innovation, Systems
+// ----------------------------------------------------------------------------
+
+function createStrategySpecimen() {
+  const group = new THREE.Group();
+  group.name = 'specimen_strategy';
+
+  const pillarMat = new THREE.MeshStandardMaterial({
+    color: 0x1e293b,
+    metalness: 0.88,
+    roughness: 0.22,
+    fog: false
+  });
+  const capMat = new THREE.MeshStandardMaterial({
+    color: 0x38bdf8,
+    emissive: 0x0284c7,
+    emissiveIntensity: 1.2,
+    metalness: 0.9,
+    roughness: 0.15,
+    fog: false
+  });
+  const ribbonMat = new THREE.MeshStandardMaterial({
+    color: 0x38bdf8,
+    emissive: 0x0ea5e9,
+    emissiveIntensity: 0.9,
+    metalness: 0.85,
+    roughness: 0.18,
+    fog: false
+  });
+  const orbitMat = new THREE.MeshStandardMaterial({
+    color: 0x64748b,
+    emissive: 0x334155,
+    emissiveIntensity: 0.35,
+    metalness: 0.92,
+    roughness: 0.15,
+    fog: false
+  });
+  const nodeMat = new THREE.MeshStandardMaterial({
+    color: 0x38bdf8,
+    emissive: 0x38bdf8,
+    emissiveIntensity: 1.4,
+    metalness: 0.4,
+    roughness: 0.1,
+    fog: false
+  });
+
+  // 1. 4 Architectural Ascending Pillars (Business Model & Revenue Strategy)
+  const pillarPositions = [
+    { x: -0.15, z: -0.15, h: 0.42 },
+    { x: 0.15, z: -0.15, h: 0.62 },
+    { x: 0.15, z: 0.15, h: 0.82 },
+    { x: -0.15, z: 0.15, h: 1.02 }
+  ];
+
+  const pillarGroup = new THREE.Group();
+  pillarPositions.forEach(p => {
+    const shaftGeo = new THREE.CylinderGeometry(0.042, 0.048, p.h, 8);
+    const shaft = new THREE.Mesh(shaftGeo, pillarMat);
+    shaft.position.set(p.x, -0.38 + p.h / 2, p.z);
+    pillarGroup.add(shaft);
+
+    const capGeo = new THREE.BoxGeometry(0.10, 0.032, 0.10);
+    const cap = new THREE.Mesh(capGeo, capMat);
+    cap.position.set(p.x, -0.38 + p.h + 0.016, p.z);
+    pillarGroup.add(cap);
+
+    const baseGeo = new THREE.BoxGeometry(0.11, 0.028, 0.11);
+    const base = new THREE.Mesh(baseGeo, pillarMat);
+    base.position.set(p.x, -0.38 - 0.014, p.z);
+    pillarGroup.add(base);
+  });
+  group.add(pillarGroup);
+
+  // 2. Ascending Helical Spiral Ribbon (Go-to-Market & Market Expansion)
+  const curvePoints = [];
+  const turns = 2.4;
+  const numSteps = 72;
+  for (let i = 0; i <= numSteps; i++) {
+    const t = i / numSteps;
+    const angle = t * Math.PI * 2 * turns;
+    const r = 0.26 + t * 0.05;
+    const y = -0.35 + t * 1.05;
+    curvePoints.push(new THREE.Vector3(Math.cos(angle) * r, y, Math.sin(angle) * r));
+  }
+  const spiralCurve = new THREE.CatmullRomCurve3(curvePoints);
+  const ribbonGeo = new THREE.TubeGeometry(spiralCurve, 64, 0.015, 8, false);
+  const ribbon = new THREE.Mesh(ribbonGeo, ribbonMat);
+  group.add(ribbon);
+
+  // 3. Dual Interlocking Orbit Base with 6 Partnership Nodes (Strategic Partnerships & Ecosystem Development)
+  const orbitGroup = new THREE.Group();
+  orbitGroup.position.set(0, -0.40, 0);
+
+  const orbit1Geo = new THREE.TorusGeometry(0.36, 0.011, 12, 48);
+  const orbit1 = new THREE.Mesh(orbit1Geo, orbitMat);
+  orbit1.rotation.x = Math.PI / 2 + 0.22;
+  orbit1.rotation.y = 0.15;
+  orbitGroup.add(orbit1);
+
+  const orbit2Geo = new THREE.TorusGeometry(0.34, 0.011, 12, 48);
+  const orbit2 = new THREE.Mesh(orbit2Geo, orbitMat);
+  orbit2.rotation.x = Math.PI / 2 - 0.22;
+  orbit2.rotation.y = -0.15;
+  orbitGroup.add(orbit2);
+
+  const nodeGeo = new THREE.SphereGeometry(0.03, 16, 16);
+  for (let i = 0; i < 6; i++) {
+    const angle = (i / 6) * Math.PI * 2;
+    const orbitChoice = (i % 2 === 0);
+    const r = orbitChoice ? 0.36 : 0.34;
+    const node = new THREE.Mesh(nodeGeo, nodeMat);
+    const basePos = new THREE.Vector3(Math.cos(angle) * r, 0, Math.sin(angle) * r);
+    if (orbitChoice) {
+      basePos.applyEuler(new THREE.Euler(Math.PI / 2 + 0.22, 0.15, 0));
+    } else {
+      basePos.applyEuler(new THREE.Euler(Math.PI / 2 - 0.22, -0.15, 0));
+    }
+    node.position.copy(basePos);
+    orbitGroup.add(node);
+  }
+  group.add(orbitGroup);
+
+  return {
+    group,
+    animate: (time) => {
+      ribbon.rotation.y = time * 0.22;
+      orbitGroup.rotation.y = time * 0.12;
+      const pulse = Math.sin(time * 3.0) * 0.3 + 0.9;
+      nodeMat.emissiveIntensity = 1.1 * pulse;
+      ribbonMat.emissiveIntensity = 0.8 * pulse;
+      capMat.emissiveIntensity = 1.0 * pulse;
+    }
+  };
+}
+
+function createInnovationSpecimen() {
+  const group = new THREE.Group();
+  group.name = 'specimen_innovation';
+
+  const seedMat = new THREE.MeshStandardMaterial({
+    color: 0xf43f5e,
+    emissive: 0xf43f5e,
+    emissiveIntensity: 1.5,
+    metalness: 0.3,
+    roughness: 0.1,
+    fog: false
+  });
+  const cubeMat = new THREE.MeshStandardMaterial({
+    color: 0x1e1b4b,
+    emissive: 0x312e81,
+    emissiveIntensity: 0.4,
+    metalness: 0.88,
+    roughness: 0.18,
+    fog: false
+  });
+  const cubeEdgeMat = new THREE.LineBasicMaterial({
+    color: 0xf43f5e
+  });
+  const orbitMat = new THREE.MeshStandardMaterial({
+    color: 0xa855f7,
+    emissive: 0x7e22ce,
+    emissiveIntensity: 0.45,
+    metalness: 0.92,
+    roughness: 0.15,
+    fog: false
+  });
+  const moonMat = new THREE.MeshStandardMaterial({
+    color: 0xfbcfe8,
+    emissive: 0xf472b6,
+    emissiveIntensity: 1.3,
+    metalness: 0.4,
+    roughness: 0.1,
+    fog: false
+  });
+
+  // 1. Luminous Central 0-to-1 Seed Core (Venture Design & 0-to-1 Product Development)
+  const seedGeo = new THREE.IcosahedronGeometry(0.13, 2);
+  const seedCore = new THREE.Mesh(seedGeo, seedMat);
+  group.add(seedCore);
+
+  // 2. Modular Cube Matrix: 8 geometric cubes around the core (Product Strategy, UX & Market Validation)
+  const cubeMatrixGroup = new THREE.Group();
+  const cubeGeo = new THREE.BoxGeometry(0.13, 0.13, 0.13);
+  const d = 0.175;
+
+  for (let x of [-1, 1]) {
+    for (let y of [-1, 1]) {
+      for (let z of [-1, 1]) {
+        const cMesh = new THREE.Mesh(cubeGeo, cubeMat);
+        cMesh.position.set(x * d, y * d, z * d);
+
+        const edges = new THREE.EdgesGeometry(cubeGeo);
+        const line = new THREE.LineSegments(edges, cubeEdgeMat);
+        cMesh.add(line);
+
+        cubeMatrixGroup.add(cMesh);
+      }
+    }
+  }
+  group.add(cubeMatrixGroup);
+
+  // 3. Tilted Expansion Orbits and Lunar Orbital Modules (Product-Market Fit & Scaling Roadmaps)
+  const orbit1Group = new THREE.Group();
+  orbit1Group.rotation.set(0.65, 0.35, 0.2);
+  const orbitTrack1Geo = new THREE.TorusGeometry(0.44, 0.009, 12, 64);
+  const orbitTrack1 = new THREE.Mesh(orbitTrack1Geo, orbitMat);
+  orbit1Group.add(orbitTrack1);
+  group.add(orbit1Group);
+
+  const orbit2Group = new THREE.Group();
+  orbit2Group.rotation.set(-0.55, 0.75, -0.3);
+  const orbitTrack2Geo = new THREE.TorusGeometry(0.48, 0.009, 12, 64);
+  const orbitTrack2 = new THREE.Mesh(orbitTrack2Geo, orbitMat);
+  orbit2Group.add(orbitTrack2);
+  group.add(orbit2Group);
+
+  const moonGeo = new THREE.SphereGeometry(0.035, 16, 16);
+  const moon1 = new THREE.Mesh(moonGeo, moonMat);
+  group.add(moon1);
+  const moon2 = new THREE.Mesh(moonGeo, moonMat);
+  group.add(moon2);
+
+  return {
+    group,
+    animate: (time) => {
+      const pulse = Math.sin(time * 3.5) * 0.2 + 1.05;
+      seedCore.scale.setScalar(pulse);
+      seedMat.emissiveIntensity = 1.3 * pulse;
+
+      const breathe = Math.sin(time * 1.8) * 0.025 + 1.0;
+      cubeMatrixGroup.scale.setScalar(breathe);
+      cubeMatrixGroup.rotation.y = time * 0.12;
+
+      const a1 = time * 0.7;
+      const v1 = new THREE.Vector3(Math.cos(a1) * 0.44, 0, Math.sin(a1) * 0.44);
+      v1.applyEuler(new THREE.Euler(0.65, 0.35, 0.2));
+      moon1.position.copy(v1);
+
+      const a2 = -time * 0.85 + Math.PI;
+      const v2 = new THREE.Vector3(Math.cos(a2) * 0.48, 0, Math.sin(a2) * 0.48);
+      v2.applyEuler(new THREE.Euler(-0.55, 0.75, -0.3));
+      moon2.position.copy(v2);
+    }
+  };
+}
+
+function createSystemsSpecimen() {
+  const group = new THREE.Group();
+  group.name = 'specimen_systems';
+
+  const slabMat = new THREE.MeshStandardMaterial({
+    color: 0x0f172a,
+    emissive: 0x1e293b,
+    emissiveIntensity: 0.35,
+    metalness: 0.92,
+    roughness: 0.18,
+    fog: false
+  });
+  const slabEdgeMat = new THREE.LineBasicMaterial({
+    color: 0x10b981
+  });
+  const aiMat = new THREE.MeshStandardMaterial({
+    color: 0x059669,
+    emissive: 0x10b981,
+    emissiveIntensity: 1.5,
+    metalness: 0.35,
+    roughness: 0.1,
+    fog: false
+  });
+  const beamMat = new THREE.MeshStandardMaterial({
+    color: 0x34d399,
+    emissive: 0x10b981,
+    emissiveIntensity: 1.0,
+    metalness: 0.5,
+    roughness: 0.2,
+    fog: false
+  });
+  const gimbalMat = new THREE.MeshStandardMaterial({
+    color: 0x10b981,
+    emissive: 0x047857,
+    emissiveIntensity: 0.55,
+    metalness: 0.95,
+    roughness: 0.12,
+    fog: false
+  });
+
+  // 1. 3 Stacked Stepped Operating Slabs (Business Process & Operating Model Design)
+  const slabLevels = [
+    { y: -0.32, r: 0.36, h: 0.045 },
+    { y: 0.0,   r: 0.28, h: 0.040 },
+    { y: 0.32,  r: 0.20, h: 0.035 }
+  ];
+
+  const slabGroup = new THREE.Group();
+  slabLevels.forEach(s => {
+    const slabGeo = new THREE.CylinderGeometry(s.r, s.r * 1.06, s.h, 6);
+    const slab = new THREE.Mesh(slabGeo, slabMat);
+    slab.position.y = s.y;
+
+    const edges = new THREE.EdgesGeometry(slabGeo);
+    const line = new THREE.LineSegments(edges, slabEdgeMat);
+    slab.add(line);
+
+    slabGroup.add(slab);
+  });
+  group.add(slabGroup);
+
+  // 2. Octahedral AI Core with Data Stream Columns (AI-Enabled Workflows & Automation)
+  const aiGeo = new THREE.OctahedronGeometry(0.12, 0);
+  const aiCore = new THREE.Mesh(aiGeo, aiMat);
+  group.add(aiCore);
+
+  const beamGroup = new THREE.Group();
+  for (let i = 0; i < 4; i++) {
+    const angle = (i / 4) * Math.PI * 2 + Math.PI / 4;
+    const r = 0.15;
+    const beamGeo = new THREE.CylinderGeometry(0.008, 0.008, 0.70, 8);
+    const beam = new THREE.Mesh(beamGeo, beamMat);
+    beam.position.set(Math.cos(angle) * r, 0, Math.sin(angle) * r);
+    beamGroup.add(beam);
+  }
+  group.add(beamGroup);
+
+  // 3. Interlocking Gyroscopic Gimbal Rings (Systems Integration & Operational Scalability)
+  const gimbal1Geo = new THREE.TorusGeometry(0.42, 0.009, 12, 64);
+  const gimbal1 = new THREE.Mesh(gimbal1Geo, gimbalMat);
+  group.add(gimbal1);
+
+  const gimbal2Geo = new THREE.TorusGeometry(0.46, 0.009, 12, 64);
+  const gimbal2 = new THREE.Mesh(gimbal2Geo, gimbalMat);
+  group.add(gimbal2);
+
+  const gimbal3Geo = new THREE.TorusGeometry(0.50, 0.009, 12, 64);
+  const gimbal3 = new THREE.Mesh(gimbal3Geo, gimbalMat);
+  group.add(gimbal3);
+
+  return {
+    group,
+    animate: (time) => {
+      aiCore.rotation.y = time * 0.9;
+      aiCore.rotation.x = time * 0.45;
+      const pulse = Math.sin(time * 4.0) * 0.3 + 1.1;
+      aiMat.emissiveIntensity = 1.3 * pulse;
+
+      gimbal1.rotation.x = time * 0.42;
+      gimbal1.rotation.y = time * 0.22;
+
+      gimbal2.rotation.y = time * 0.38;
+      gimbal2.rotation.z = time * 0.28;
+
+      gimbal3.rotation.z = time * 0.32;
+      gimbal3.rotation.x = time * 0.18;
+
+      slabGroup.rotation.y = -time * 0.07;
+    }
+  };
+}
+
 export const LIQUID_SHAPES = {
+  strategy: {
+    id: 'strategy',
+    label: 'Strategy & Growth',
+    name: 'Strategy & Growth',
+    note: '4 Ascending Pillars · Helical GTM Ribbon · Dual Partnership Orbit',
+    geo: () => new THREE.CapsuleGeometry(0.48, 0.62, 24, 48),
+    specimen: createStrategySpecimen,
+    baseY: 1.2,
+    amp: 0.04,
+    camR: 6.2,
+    presets: {
+      text: 'STRATEGY & GROWTH',
+      size: 1.0,
+      spin: 0.35,
+      bob: 0.15,
+      tilt: -6,
+      roughness: 0.08,
+      dispersion: 1.25,
+      ior: 1.62,
+      thickness: 2.8,
+      tint: '#e6f4ff',
+      clearcoat: 0.6,
+      noise: 0.28,
+      speed: 0.85
+    }
+  },
+  innovation: {
+    id: 'innovation',
+    label: 'Innovation & Products',
+    name: 'Innovation & Products',
+    note: '0-to-1 Seed Core · 8-Cube Modular Matrix · Scaling Expansion Orbits',
+    geo: () => new THREE.IcosahedronGeometry(0.70, 5),
+    specimen: createInnovationSpecimen,
+    baseY: 1.2,
+    amp: 0.05,
+    camR: 6.2,
+    presets: {
+      text: 'INNOVATION & PRODUCTS',
+      size: 1.0,
+      spin: 0.30,
+      bob: 0.18,
+      tilt: -4,
+      roughness: 0.07,
+      dispersion: 1.35,
+      ior: 1.64,
+      thickness: 2.7,
+      tint: '#fae8ff',
+      clearcoat: 0.55,
+      noise: 0.32,
+      speed: 0.90
+    }
+  },
+  systems: {
+    id: 'systems',
+    label: 'Systems & Intelligence',
+    name: 'Systems & Intelligence',
+    note: '3 Stacked Operating Slabs · Octahedral AI Core · Gyroscopic Rings',
+    geo: () => new THREE.CylinderGeometry(0.58, 0.64, 1.15, 6, 32),
+    specimen: createSystemsSpecimen,
+    baseY: 1.2,
+    amp: 0.035,
+    camR: 6.2,
+    presets: {
+      text: 'SYSTEMS & INTELLIGENCE',
+      size: 1.0,
+      spin: 0.28,
+      bob: 0.16,
+      tilt: -5,
+      roughness: 0.09,
+      dispersion: 1.20,
+      ior: 1.60,
+      thickness: 2.9,
+      tint: '#ecfdf5',
+      clearcoat: 0.65,
+      noise: 0.26,
+      speed: 0.80
+    }
+  },
   orb: {
     id: 'orb',
     label: 'Liquid Orb',
@@ -155,38 +592,38 @@ export const LIQUID_SHAPES = {
   }
 };
 
-const getShape = (id) => LIQUID_SHAPES[String(id)] || LIQUID_SHAPES.torus || LIQUID_SHAPES.orb;
+const getShape = (id) => LIQUID_SHAPES[String(id)] || LIQUID_SHAPES.strategy || LIQUID_SHAPES.orb;
 
 export const LIQUID_DEFAULTS = {
-  shape: 'torus',
+  shape: 'strategy',
   twists: 2,
   loops: 3,
   tube: 0.12,
-  size: 0.90,
+  size: 1.0,
   width: 1.0,
   height: 1.0,
   twist: 0.0,
-  dispersion: 1.05,
-  ior: 1.63,
-  roughness: 0.13,
-  thickness: 2.60,
+  dispersion: 1.25,
+  ior: 1.62,
+  roughness: 0.08,
+  thickness: 2.80,
   iridescence: 0.11,
-  clearcoat: 0.45,
-  tint: '#eef6fb',
-  noise: 0.34,
-  speed: 0.95,
+  clearcoat: 0.60,
+  tint: '#e6f4ff',
+  noise: 0.28,
+  speed: 0.85,
   spinDir: 'forward',
   rotX: 0,
   rotY: 0,
   rotZ: 0,
   spinX: 0,
-  spin: 0.40,
+  spin: 0.35,
   spinZ: 0,
   sway: 0.22,
   yaw: 0,
   roll: 0,
-  bob: 0.20,
-  tilt: -4,
+  bob: 0.15,
+  tilt: -6,
   sky: '#b9c6d0',
   haze: '#e9ebec',
   ground: '#45484c',
@@ -196,7 +633,7 @@ export const LIQUID_DEFAULTS = {
   zoom: 1.15,
   exposure: 0.65,
   bloom: 0.32,
-  text: 'TORUS',
+  text: 'STRATEGY & GROWTH',
   textSize: 1.0,
   textColor: '#4a5157',
   orbit: false,
@@ -528,10 +965,18 @@ export class LiquidGlassEngine {
 
   initMesh() {
     this.currentMesh = null;
+    this.currentSpecimenObj = null;
     this.rebuildMeshGeometry();
   }
 
   rebuildMeshGeometry() {
+    if (this.currentSpecimenObj) {
+      if (this.currentSpecimenObj.group) {
+        this.meshGroup.remove(this.currentSpecimenObj.group);
+      }
+      this.currentSpecimenObj = null;
+    }
+
     if (this.currentMesh) {
       this.meshGroup.remove(this.currentMesh);
       this.currentMesh.geometry.dispose();
@@ -542,6 +987,14 @@ export class LiquidGlassEngine {
     const geometry = shape.geo(this.c);
     this.currentMesh = new THREE.Mesh(geometry, this.material);
     this.meshGroup.add(this.currentMesh);
+
+    // If this shape has an internal 3D dynamic specimen, instantiate and attach it
+    if (typeof shape.specimen === 'function') {
+      this.currentSpecimenObj = shape.specimen();
+      if (this.currentSpecimenObj && this.currentSpecimenObj.group) {
+        this.meshGroup.add(this.currentSpecimenObj.group);
+      }
+    }
 
     this.updateCameraFraming();
     this.updateMeshTransform();
@@ -763,6 +1216,10 @@ export class LiquidGlassEngine {
 
         // Smoothly interpolate hover ripple
         this.hoverIntensity += (this.targetHoverIntensity - this.hoverIntensity) * 0.12;
+
+        if (this.currentSpecimenObj && typeof this.currentSpecimenObj.animate === 'function') {
+          this.currentSpecimenObj.animate(this.simTime);
+        }
       }
       this.needsRender = false;
 
@@ -803,6 +1260,11 @@ export class LiquidGlassEngine {
   dispose() {
     this.isDisposed = true;
     if (this.animId) cancelAnimationFrame(this.animId);
+
+    if (this.currentSpecimenObj && this.currentSpecimenObj.group) {
+      this.meshGroup.remove(this.currentSpecimenObj.group);
+      this.currentSpecimenObj = null;
+    }
 
     window.removeEventListener('pointermove', this.onPointerMove);
     if (this.canvas) {
